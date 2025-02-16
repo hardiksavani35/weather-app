@@ -1,5 +1,5 @@
 <template>
-    <div class="container mt-5">
+    <div class="container">
         <div class="row justify-content-center text-ceter">
             <div class="col-4">
                 <header-component></header-component>
@@ -9,7 +9,9 @@
             <div class="col-4">
                 <weather-component city="adelaide"></weather-component>
                 <weather-component city="sydney"></weather-component>
-                <weather-component city="melbourne"></weather-component>
+                <weather-component city="perth"></weather-component>
+                <weather-component city="darwin"></weather-component>
+                <weather-component city="brisbane"></weather-component>
             </div>
         </div>
         <div class="row justify-content-center">
