@@ -5,13 +5,9 @@
                 <header-component></header-component>
             </div>
         </div>
-        <div class="row justify-content-center">
+        <div class="row justify-content-center mt-2">
             <div class="col-4">
-                <weather-component city="adelaide"></weather-component>
-                <weather-component city="sydney"></weather-component>
-                <weather-component city="perth"></weather-component>
-                <weather-component city="darwin"></weather-component>
-                <weather-component city="brisbane"></weather-component>
+                <router-view></router-view>
             </div>
         </div>
         <div class="row justify-content-center">
@@ -24,14 +20,12 @@
 
 <script>
 import HeaderComponent from './components/layouts/HeaderComponent.vue';
-import FooterComponent from './components/layouts/FooterComponent.vue';
-import WeatherComponent from './components/WeatherComponent.vue';
+import FooterComponent from './components/layouts/FooterComponent.vue'; 
 
 export default {
     components: {
         FooterComponent,
-        HeaderComponent,
-        WeatherComponent
+        HeaderComponent, 
     }
 }
 </script>

@@ -1,13 +1,8 @@
 
 <template>
-    <footer class="footer-content">
-        <p>Footer</p>
-    </footer>
+    <div></div>     
 </template>
 
-<script>  
-</script>
+<script> </script>
 
-<style scoped> 
-    .footer-content { text-align: center;  } 
-</style>
+<style scoped> </style>
