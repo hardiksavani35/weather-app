@@ -1,6 +1,7 @@
 
 <template>
     <div>
+        <loader-component :visible="$store.state.loader"></loader-component>
         <div @click="goToDetails()" class="weather-box">  
             <div class="d-flex justify-content-between">
                 <h5>{{ city }}</h5>
@@ -18,12 +19,15 @@
 </template>
 
 <script> 
+import { mapActions } from 'vuex';
+import LoaderComponent from './layouts/LoaderComponent.vue';
+
 export default {
     props: {
         city: String
     },
     data() {
-        return {
+        return { 
             temperature: null,
             weatherDescription: null,
             weatherIcon: null,
@@ -31,8 +35,11 @@ export default {
             formattedTime: null
         };
     },
+    components: { LoaderComponent},
     methods: {
+        ...mapActions(['setLoader']),
         async fetchWeather() {
+            this.setLoader(true);
             try {
                 const response = await fetch(
                     `https://geocoding-api.open-meteo.com/v1/search?name=${this.city}&count=1`
@@ -56,8 +63,10 @@ export default {
                 let [date, time] = weatherData.current_weather.time.split("T");
                 this.formattedDate = date;
                 this.formattedTime = time;  
+                this.setLoader(false);
             } catch (error) { 
                 this.weatherDescription = "Error loading data";
+                this.setLoader(false);
             }
         },
         getWeatherDescription(code) {

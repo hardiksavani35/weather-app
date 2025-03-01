@@ -1,4 +1,5 @@
 <template>
+    <loader-component :visible="$store.state.loader"></loader-component>
     <div class="weather-container">
         <h2 class="city-name">{{ city }}</h2> 
 
@@ -22,6 +23,9 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+import LoaderComponent from './layouts/LoaderComponent.vue';
+
 export default {
     data() {
         return {
@@ -33,8 +37,11 @@ export default {
             forecast: []
         };
     },
+    components: { LoaderComponent},
     methods: {
+        ...mapActions(['setLoader']),
         async fetchWeather() {
+            this.setLoader(true);
             try {
                 const geoResponse = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${this.city}&count=1`);
                 const geoData = await geoResponse.json();
@@ -58,8 +65,10 @@ export default {
                         weatherCode: weatherData.daily.weathercode[index]
                     }));
                 }
+                this.setLoader(false);
             } catch (error) { 
                 this.weatherDescription = "Data unavailable";
+                this.setLoader(false);
             }
         },
         getWeatherDescription(code) {
