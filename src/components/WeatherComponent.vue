@@ -4,6 +4,7 @@
         <div v-for="city in filteredCities" :key="city"> 
             <weather-box :city="city"></weather-box>
         </div>
+        <p v-if="filteredCities.length == 0">Search city not found.</p>
     </div>
 </template>
 
