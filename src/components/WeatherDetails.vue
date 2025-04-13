@@ -22,81 +22,34 @@
     </div>
 </template>
 
-<script>
-import { mapActions } from 'vuex';
+<script> 
+import weatherMixin from '../mixins/weatherMixin.js';
 import LoaderComponent from './layouts/LoaderComponent.vue';
 
 export default {
     data() {
         return {
             city: this.$route.params.city,
-            temperature: null, 
             windSpeed: null,
-            weatherDescription: null,
-            weatherIcon: null,
             forecast: []
         };
     },
+    mixins: [weatherMixin],
     components: { LoaderComponent},
-    methods: {
-        ...mapActions(['setLoader']),
+    methods: { 
         async fetchWeather() {
-            this.setLoader(true);
-            try {
-                const geoResponse = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${this.city}&count=1`);
-                const geoData = await geoResponse.json();
-                if (geoData.results) {
-                    const { latitude, longitude } = geoData.results[0];
-
-                    const weatherResponse = await fetch(
-                        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,weathercode&timezone=auto`
-                    );
-
-                    const weatherData = await weatherResponse.json();
-                    console.log(weatherData);
-                    this.temperature = weatherData.current_weather.temperature; 
-                    this.windSpeed = weatherData.current_weather.windspeed;
-                    this.weatherDescription = this.getWeatherDescription(weatherData.current_weather.weathercode);
-                    this.weatherIcon = this.getWeatherIcon(weatherData.current_weather.weathercode);
-
-                    this.forecast = weatherData.daily.time.map((date, index) => ({
-                        date,
-                        temp: weatherData.daily.temperature_2m_max[index],
-                        weatherCode: weatherData.daily.weathercode[index]
-                    }));
-                }
-                this.setLoader(false);
-            } catch (error) { 
-                this.weatherDescription = "Data unavailable";
-                this.setLoader(false);
+            const { weatherData } = await this.fetchWeatherData(this.city, true);
+            if (weatherData && weatherData.daily) {
+                this.windSpeed = weatherData.current_weather.windspeed;
+                this.forecast = weatherData.daily.time.map((date, index) => ({
+                    date,
+                    temp: weatherData.daily.temperature_2m_max[index],
+                    weatherCode: weatherData.daily.weathercode[index]
+                }));
             }
         },
-        getWeatherDescription(code) {
-            const descriptions = {
-                0: "☀️ Clear Sky",
-                1: "🌤️ Mainly Clear",
-                2: "⛅ Partly Cloudy",
-                3: "☁️ Overcast",
-                45: "🌫️ Foggy",
-                48: "🌁 Rime Fog",
-                51: "🌧️ Light Drizzle",
-                61: "🌦️ Rain",
-                80: "🌧️ Rain Showers",
-                95: "⛈️ Thunderstorms"
-            };
-            return descriptions[code] || "🌍 Weather Data";
-        },
-        getWeatherIcon(code) {
-            const iconMap = {
-                0: "01d", 1: "02d", 2: "03d", 3: "04d",
-                45: "09d", 48: "10d", 51: "11d", 61: "13d",
-                80: "50d", 95: "11d"
-            };
-            return `https://openweathermap.org/img/wn/${iconMap[code] || "01d"}@2x.png`;
-        },
-        formatDate(dateStr) {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+        formatDate(date) {
+            return new Date(date).toLocaleDateString(undefined, { weekday: 'short' });
         }
     },
     created() {
@@ -121,4 +74,4 @@ h2.city-name { text-transform: capitalize; }
 .forecast-item:hover { transform: translateY(-5px); }
 .forecast-icon { width: 40px; height: 40px; }
 .temp-forecast { font-size: 18px; font-weight: bold; } .forecast-desc { font-size: 14px; }
-</style>
+</style> 

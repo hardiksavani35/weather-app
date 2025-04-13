@@ -10,7 +10,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <h3>{{ temperature }}°C</h3>
                 <div class="d-flex align-items-center">
-                    <img :src="weatherIcon" :alt="weatherDescription" class="weather-icon">
+                    <!--img :src="weatherIcon" :alt="weatherDescription" class="weather-icon" -->
                     <span class="weather-description">{{ weatherDescription }}</span>
                 </div>
             </div>
@@ -18,83 +18,22 @@
     </div>
 </template>
 
-<script> 
-import { mapActions } from 'vuex';
+<script>  
+import weatherMixin from '../mixins/weatherMixin.js';
 import LoaderComponent from './layouts/LoaderComponent.vue';
 
 export default {
     props: {
         city: String
     },
-    data() {
-        return { 
-            temperature: null,
-            weatherDescription: null,
-            weatherIcon: null,
-            formattedDate: null,
-            formattedTime: null
-        };
-    },
+    mixins: [weatherMixin], 
     components: { LoaderComponent},
-    methods: {
-        ...mapActions(['setLoader']),
+    methods: { 
         async fetchWeather() {
-            this.setLoader(true);
-            try {
-                const response = await fetch(
-                    `https://geocoding-api.open-meteo.com/v1/search?name=${this.city}&count=1`
-                );
-                const geoData = await response.json();
-
-                if (!geoData.results || geoData.results.length === 0) {
-                    throw new Error("City not found");
-                }
-
-                const { latitude, longitude } = geoData.results[0];
-
-                const weatherResponse = await fetch(
-                    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
-                );
-                const weatherData = await weatherResponse.json(); 
-                
-                this.temperature = weatherData.current_weather.temperature;
-                this.weatherDescription = this.getWeatherDescription(weatherData.current_weather.weathercode);
-                this.weatherIcon = this.getWeatherIcon(weatherData.current_weather.weathercode);
-                let [date, time] = weatherData.current_weather.time.split("T");
-                this.formattedDate = date;
-                this.formattedTime = time;  
-                this.setLoader(false);
-            } catch (error) { 
-                this.weatherDescription = "Error loading data";
-                this.setLoader(false);
-            }
-        },
-        getWeatherDescription(code) {
-            //https://openweathermap.org/weather-conditions#Icon-list
-            const descriptions = {
-                0: "Clear Sky",
-                1: "Mainly Clear",
-                2: "Partly Cloudy",
-                3: "Overcast",
-                45: "Foggy",
-                48: "Rime Fog",
-                51: "Drizzle",
-                61: "Rain",
-                80: "Rain Showers",
-                95: "Thunderstorms"
-            };
-            return descriptions[code] || "Unknown Weather";
-        },
-        getWeatherIcon(code) {
-            const iconMap = {
-                0: "01d", 1: "02d", 2: "03d", 3: "04d",
-                45: "09d", 48: "10d", 51: "11d", 61: "13d",
-                80: "50d", 95: "11d"
-            };
-            return `https://openweathermap.org/img/wn/${iconMap[code] || "01d"}.png`;
+            await this.fetchWeatherData(this.city);
         },
         goToDetails() {
-            this.$router.push({ name: 'weather-details', params: { city: this.city } }); 
+            this.$router.push({ name: 'weather-details', params: { city: this.city } });
         }
     },
     watch: {
